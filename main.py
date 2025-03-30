@@ -1,12 +1,21 @@
+import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from mistralai import Mistral
+import httpx
 from datetime import datetime
-import os
-import json
 
+# --- LOAD FROM ENVIRONMENT ---
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_API_KEY = os.getenv("SUPABASE_API_KEY")
+SUPABASE_TABLE = "chat_logs"
+
+# --- MISTRAL SETUP ---
+client = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))
+model = "mistral-small-latest"
+
+# --- FASTAPI APP SETUP ---
 app = FastAPI()
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,31 +24,35 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-client = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))  # Store your key in Render env vars
-model = "mistral-small-latest"
+# --- SAVE CHAT TO SUPABASE ---
+async def save_chat_to_supabase(user_id: str, message: str, reply: str):
+    async with httpx.AsyncClient() as client:
+        res = await client.post(
+            f"{SUPABASE_URL}/rest/v1/{SUPABASE_TABLE}",
+            headers={
+                "apikey": SUPABASE_API_KEY,
+                "Authorization": f"Bearer {SUPABASE_API_KEY}",
+                "Content-Type": "application/json",
+                "Prefer": "return=minimal"
+            },
+            json={
+                "user_id": user_id,
+                "message": message,
+                "reply": reply
+            }
+        )
+        res.raise_for_status()
 
-CHAT_HISTORY_FILE = "chat_history.json"
-
-def save_chat(user_id, message, reply):
-    timestamp = datetime.utcnow().isoformat()
-    record = {"timestamp": timestamp, "user": user_id, "message": message, "reply": reply}
-
-    try:
-        with open(CHAT_HISTORY_FILE, "r") as f:
-            history = json.load(f)
-    except FileNotFoundError:
-        history = []
-
-    history.append(record)
-
-    with open(CHAT_HISTORY_FILE, "w") as f:
-        json.dump(history, f)
+# --- ROUTES ---
+@app.get("/")
+def root():
+    return {"message": "Mistral Chatbot backend with Supabase is running!"}
 
 @app.post("/chat")
 async def chat(request: Request):
     data = await request.json()
     message = data["message"]
-    user_id = data.get("user_id", "anonymous")
+    user_id = data.get("user_id", "guest")
 
     response = client.chat.complete(
         model=model,
@@ -47,18 +60,6 @@ async def chat(request: Request):
     )
 
     reply = response.choices[0].message.content
-    save_chat(user_id, message, reply)
+    await save_chat_to_supabase(user_id, message, reply)
 
     return {"reply": reply}
-
-@app.get("/")
-def root():
-    return {"message": "Mistral Chatbot backend is running!"}
-
-@app.get("/history")
-def get_history():
-    try:
-        with open(CHAT_HISTORY_FILE, "r") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return []
