@@ -45,19 +45,27 @@
     async function sendMsg() {
       const msg = document.getElementById("msgInput").value;
       if (!msg.trim()) return;
-
+    
       addMessage("user", msg);
       document.getElementById("msgInput").value = "";
-
-      const res = await fetch(backendURL, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ message: msg, user_id: "guest" })
-      });
-
-      const data = await res.json();
-      addMessage("bot", data.reply);
+    
+      try {
+        const res = await fetch(backendURL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: msg, user_id: "guest" }),
+        });
+    
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    
+        const data = await res.json();
+        addMessage("bot", data.reply);
+      } catch (err) {
+        console.error("Failed to fetch:", err);
+        addMessage("bot", "Sorry, something went wrong. 😢");
+      }
     }
+
 
     function addMessage(role, content) {
       const div = document.createElement("div");
