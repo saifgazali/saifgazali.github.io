@@ -39,40 +39,44 @@
     <button onclick="sendMsg()">Send</button>
   </div>
 
-  <script>
-    const backendURL = "https://saifgazali-github-io.onrender.com/chat";
+ <script>
+  const backendURL = "https://saifgazali-github-io.onrender.com/chat";
 
-    async function sendMsg() {
-      const msg = document.getElementById("msgInput").value;
-      if (!msg.trim()) return;
-    
-      addMessage("user", msg);
-      document.getElementById("msgInput").value = "";
-    
-      try {
-        const res = await fetch(backendURL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: msg, user_id: "guest" }),
-        });
-    
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-    
-        const data = await res.json();
+  async function sendMsg() {
+    const msg = document.getElementById("msgInput").value.trim();
+    if (!msg) return;
+
+    addMessage("user", msg);
+    document.getElementById("msgInput").value = "";
+
+    try {
+      const res = await fetch(backendURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: msg, user_id: "guest" }),
+      });
+
+      const data = await res.json();
+      console.log("Response from backend:", data); // 👈 Debugging line
+
+      if (data && data.reply) {
         addMessage("bot", data.reply);
-      } catch (err) {
-        console.error("Failed to fetch:", err);
-        addMessage("bot", "Sorry, something went wrong. 😢");
+      } else {
+        addMessage("bot", "No reply received 😕");
       }
+    } catch (err) {
+      console.error("Fetch error:", err);
+      addMessage("bot", "Oops, something went wrong.");
     }
+  }
 
+  function addMessage(role, content) {
+    const div = document.createElement("div");
+    div.className = "msg " + role;
+    div.textContent = (role === "user" ? "You: " : "Bot: ") + content;
+    document.getElementById("messages").appendChild(div);
+  }
+</script>
 
-    function addMessage(role, content) {
-      const div = document.createElement("div");
-      div.className = "msg " + role;
-      div.textContent = (role === "user" ? "You: " : "Bot: ") + content;
-      document.getElementById("messages").appendChild(div);
-    }
-  </script>
 </body>
 </html>
