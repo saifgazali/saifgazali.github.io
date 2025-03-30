@@ -54,12 +54,22 @@ async def chat(request: Request):
     message = data["message"]
     user_id = data.get("user_id", "guest")
 
-    response = client.chat.complete(
-        model=model,
-        messages=[{"role": "user", "content": message}]
-    )
+    try:
+        response = client.chat.complete(
+            model=model,
+            messages=[{"role": "user", "content": message}]
+        )
+        reply = response.choices[0].message.content
 
-    reply = response.choices[0].message.content
-    await save_chat_to_supabase(user_id, message, reply)
+        # Attempt to save chat
+        try:
+            await save_chat_to_supabase(user_id, message, reply)
+        except Exception as e:
+            print("❌ Supabase saving error:", e)
 
-    return {"reply": reply}
+        return {"reply": reply}
+
+    except Exception as e:
+        print("❌ Chatbot error:", e)
+        return {"reply": "Oops, something went wrong."}
+
