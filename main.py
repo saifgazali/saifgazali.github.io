@@ -27,6 +27,8 @@ SUPABASE_API_URL = os.getenv("SUPABASE_URL")
 SUPABASE_API_KEY = os.getenv("SUPABASE_API_KEY")
 SUPABASE_TABLE = "chat_logs"
 
+import httpx
+
 async def save_chat_to_supabase(user_id: str, message: str, reply: str):
     headers = {
         "apikey": SUPABASE_API_KEY,
@@ -43,14 +45,16 @@ async def save_chat_to_supabase(user_id: str, message: str, reply: str):
     }
 
     try:
-        res = await httpx.post(
-            f"{SUPABASE_API_URL}/rest/v1/{SUPABASE_TABLE}",
-            headers=headers,
-            json=data
-        )
-        res.raise_for_status()
+        async with httpx.AsyncClient() as client:
+            res = await client.post(
+                f"{SUPABASE_API_URL}/rest/v1/{SUPABASE_TABLE}",
+                headers=headers,
+                json=data
+            )
+            res.raise_for_status()
     except httpx.HTTPStatusError as e:
         print("❌ Supabase saving error:", e)
+
 
 @app.post("/chat")
 async def chat(request: Request):
