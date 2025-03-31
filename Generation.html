@@ -1,33 +1,100 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mistral Chatbot</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      padding: 2rem;
-      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(to right, #f1f5f9, #e2e8f0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
+
     #chatbox {
-      max-width: 600px;
-      margin: auto;
-      background: white;
-      padding: 1rem;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    .msg {
-      margin-bottom: 1rem;
-    }
-    .msg.user { font-weight: bold; color: #333; }
-    .msg.bot { color: #0066cc; }
-    input, button {
-      padding: 10px;
+      background-color: #fff;
       width: 100%;
+      max-width: 600px;
+      height: 80vh;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    h2 {
+      margin: 0;
+      padding: 1rem;
+      background-color: #0f172a;
+      color: #fff;
+      font-size: 1.5rem;
+      text-align: center;
+    }
+
+    #messages {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+
+    .msg {
+      margin: 0.5rem 0;
+      max-width: 80%;
+      padding: 0.75rem 1rem;
+      border-radius: 20px;
+      animation: fadeIn 0.3s ease-in-out;
+      white-space: pre-wrap;
+    }
+
+    .user {
+      background-color: #dbeafe;
+      align-self: flex-end;
+      color: #1e3a8a;
+    }
+
+    .bot {
+      background-color: #e2e8f0;
+      align-self: flex-start;
+      color: #334155;
+    }
+
+    #msgInput {
+      border: none;
+      padding: 1rem;
       font-size: 1rem;
-      margin-top: 10px;
+      width: 100%;
+      outline: none;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    button {
+      background-color: #0f172a;
+      color: white;
+      border: none;
+      font-size: 1rem;
+      padding: 1rem;
+      width: 100%;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #1e293b;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -35,48 +102,45 @@
   <div id="chatbox">
     <h2>Mistral Chatbot</h2>
     <div id="messages"></div>
-    <input type="text" id="msgInput" placeholder="Type your message..." />
-    <button onclick="sendMsg()">Send</button>
+    <input type="text" id="msgInput" placeholder="Tape ton message ici..." />
+    <button onclick="sendMsg()">Envoyer</button>
   </div>
 
- <script>
-  const backendURL = "https://saifgazali-github-io.onrender.com/chat";
+  <script>
+    const backendURL = "https://saifgazali-github-io.onrender.com/chat";
 
-  async function sendMsg() {
-    const msg = document.getElementById("msgInput").value.trim();
-    if (!msg) return;
+    async function sendMsg() {
+      const input = document.getElementById("msgInput");
+      const msg = input.value.trim();
+      if (!msg) return;
 
-    addMessage("user", msg);
-    document.getElementById("msgInput").value = "";
+      addMessage("user", msg);
+      input.value = "";
 
-    try {
-      const res = await fetch(backendURL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: msg, user_id: localStorage.getItem("user_id") }),
-      });
+      try {
+        const res = await fetch(backendURL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: msg,
+            user_id: localStorage.getItem("user_id") || "anonymous"
+          })
+        });
 
-      const data = await res.json();
-      console.log("Response from backend:", data); // 👈 Debugging line
-
-      if (data && data.reply) {
-        addMessage("bot", data.reply);
-      } else {
-        addMessage("bot", "No reply received 😕");
+        const data = await res.json();
+        addMessage("bot", data.reply || "Désolé, pas de réponse.");
+      } catch (err) {
+        addMessage("bot", "⚠️ Une erreur est survenue.");
       }
-    } catch (err) {
-      console.error("Fetch error:", err);
-      addMessage("bot", "Oops, something went wrong.");
     }
-  }
 
-  function addMessage(role, content) {
-    const div = document.createElement("div");
-    div.className = "msg " + role;
-    div.textContent = (role === "user" ? "You: " : "Bot: ") + content;
-    document.getElementById("messages").appendChild(div);
-  }
-</script>
-
+    function addMessage(role, content) {
+      const div = document.createElement("div");
+      div.className = "msg " + role;
+      div.textContent = content;
+      document.getElementById("messages").appendChild(div);
+      document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+    }
+  </script>
 </body>
 </html>
