@@ -113,29 +113,39 @@ async def chat(request: Request):
     message = data["message"]
     user_id = data.get("user_id", "anonymous")
 
-    # 🧠 Step 1: Fetch last 5 message-reply pairs for the user
+    # 📥 Récupérer les 5 derniers messages de l'utilisateur (ordre décroissant)
     context_msgs = await get_last_5_chats(user_id)
 
-    # 🧠 Step 2: Format them as context
     formatted_context = []
-    for item in context_msgs:
-        formatted_context.append({"role": "user", "content": item["message"]})
-        formatted_context.append({"role": "assistant", "content": item["reply"]})
 
-    # 🧠 Step 3: Add current message at the end
-    formatted_context.append({"role": "user", "content": f"{message}\n\n(Considérez ce qui précède comme contexte au cas où il s’agirait d’un suivi.)"})
+    if context_msgs:
+        formatted_context.append({
+            "role": "system",
+            "content": (
+                "Voici les dernières conversations de l'utilisateur (les plus récentes en premier). "
+                "Utilise-les comme contexte si la question actuelle est un suivi ou une modification."
+            )
+        })
 
-    # 🤖 Step 4: Get reply from Mistral
+        for item in context_msgs:
+            formatted_context.append({"role": "user", "content": item["message"]})
+            formatted_context.append({"role": "assistant", "content": item["reply"]})
+
+    # 💬 Ajouter le message actuel de l'utilisateur
+    formatted_context.append({"role": "user", "content": message})
+
+    # 🤖 Envoyer la requête au modèle Mistral
     response = client.chat.complete(
         model=model,
         messages=formatted_context
     )
     reply = response.choices[0].message.content
 
-    # 💾 Step 5: Save to Supabase
+    # 💾 Enregistrer la nouvelle interaction dans Supabase
     await save_chat_to_supabase(user_id, message, reply)
 
     return {"reply": reply}
+
 
 
 @app.get("/")
