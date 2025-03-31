@@ -81,6 +81,31 @@ async def save_chat_to_supabase(user_id: str, message: str, reply: str):
     except httpx.HTTPStatusError as e:
         print("❌ Supabase saving error:", e)
 
+async def get_last_5_chats(user_id):
+    headers = {
+        "apikey": SUPABASE_API_KEY,
+        "Authorization": f"Bearer {SUPABASE_API_KEY}"
+    }
+
+    params = {
+        "user_id": f"eq.{user_id}",
+        "order": "timestamp.desc",
+        "limit": 5
+    }
+
+    try:
+        async with httpx.AsyncClient() as client:
+            res = await client.get(
+                f"{SUPABASE_API_URL}/rest/v1/{SUPABASE_TABLE}",
+                headers=headers,
+                params=params
+            )
+            res.raise_for_status()
+            return res.json()
+    except Exception as e:
+        print("⚠️ Error getting chat history:", e)
+        return []
+
 
 @app.post("/chat")
 async def chat(request: Request):
@@ -88,15 +113,30 @@ async def chat(request: Request):
     message = data["message"]
     user_id = data.get("user_id", "anonymous")
 
+    # 🧠 Step 1: Fetch last 5 message-reply pairs for the user
+    context_msgs = await get_last_5_chats(user_id)
+
+    # 🧠 Step 2: Format them as context
+    formatted_context = []
+    for item in context_msgs:
+        formatted_context.append({"role": "user", "content": item["message"]})
+        formatted_context.append({"role": "assistant", "content": item["reply"]})
+
+    # 🧠 Step 3: Add current message at the end
+    formatted_context.append({"role": "user", "content": f"{message}\n\n(Considérez ce qui précède comme contexte au cas où il s’agirait d’un suivi.)"})
+
+    # 🤖 Step 4: Get reply from Mistral
     response = client.chat.complete(
         model=model,
-        messages=[{"role": "user", "content": message}]
+        messages=formatted_context
     )
     reply = response.choices[0].message.content
 
+    # 💾 Step 5: Save to Supabase
     await save_chat_to_supabase(user_id, message, reply)
 
     return {"reply": reply}
+
 
 @app.get("/")
 def root():
