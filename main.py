@@ -53,6 +53,10 @@ users_db = {
     "audrey": {
         "password": "audrey",
         "uuid": "user-0010"
+    },
+    "jonathon": {
+        "password": "jonathon",
+        "uuid": "user-0011"
     }
     
 }
