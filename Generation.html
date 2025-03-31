@@ -20,17 +20,18 @@
       height: 100vh;
     }
 
-    #chatbox {
-      background-color: #fff;
-      width: 100%;
-      max-width: 600px;
-      height: 80vh;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
+   #chatbox {
+  background-color: #fff;
+  width: 100%;
+  max-width: 800px; /* ← élargi */
+  height: 90vh;      /* ← plus haut */
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 
     h2 {
       margin: 0;
@@ -42,10 +43,11 @@
     }
 
     #messages {
-      flex: 1;
-      padding: 1rem;
-      overflow-y: auto;
-    }
+  flex: 1;
+  padding: 1.5rem; /* ← plus spacieux */
+  overflow-y: auto;
+}
+
 
     .msg {
       margin: 0.5rem 0;
