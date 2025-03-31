@@ -101,7 +101,7 @@
 <body>
   <div id="chatbox">
    <div style="text-align: center; padding: 1rem; background-color: #0f172a;">
-  <img src="logo.png" alt="Logo SaifBot" style="height: 80px;" />
+  <img src="logo.png" alt="Logo SaifBot" style="height: 60px;" />
 </div>
 
 
@@ -116,6 +116,13 @@
 
     async function sendMsg() {
       const input = document.getElementById("msgInput");
+      document.getElementById("msgInput").addEventListener("keydown", function (event) {
+  if (event.key === "Enter") {
+    event.preventDefault(); // Évite le saut de ligne dans l’input
+    sendMsg();              // Appelle la fonction d’envoi
+  }
+});
+
       const msg = input.value.trim();
       if (!msg) return;
 
