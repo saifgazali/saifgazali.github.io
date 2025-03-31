@@ -10,6 +10,8 @@ load_dotenv()  # Load from .env file if present
 
 from fastapi import HTTPException
 
+app = FastAPI()
+
 # Dummy user database (for just 2 users)
 users_db = {
     "saif": {
@@ -33,8 +35,6 @@ async def login(request: Request):
 
     return {"uuid": users_db[username]["uuid"]}
 
-
-app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
