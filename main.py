@@ -120,13 +120,15 @@ async def chat(request: Request):
 
     if context_msgs:
         formatted_context.append({
-            "role": "system",
-            "content": (
-                "Voici les dernières conversations avec l'utilisateur (du plus ancien au plus récent). "
-                "Respecte toutes les modifications précédentes. Si l'utilisateur demande un changement (comme un nom), "
-                    "assure-toi que ce changement est toujours pris en compte dans les prochaines réponses, même s'il n'est pas répété."
-            )
-        })
+    "role": "system",
+    "content": (
+        "Voici les dernières conversations avec l'utilisateur (du plus ancien au plus récent). "
+        "Utilise ce contexte uniquement si l'utilisateur pose une question ou fait référence à la conversation précédente. "
+        "Si ce n’est pas le cas (par exemple, une simple salutation ou un nouveau sujet), ignore le contexte. "
+        "Respecte toutes les modifications précédentes. Si l'utilisateur demande un changement (comme un nom), "
+        "assure-toi que ce changement est toujours pris en compte dans les prochaines réponses, même s'il n'est pas répété."
+    )
+})
 
         for item in context_msgs:
             formatted_context.append({"role": "user", "content": item["message"]})
