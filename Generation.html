@@ -4,11 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SaifBot</title>
-  <link rel="stylesheet" type="text/css" href="css/style.css">
-  <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
   <style>
     * {
       box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(to right, #f1f5f9, #e2e8f0);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
 
     #chatbox {
@@ -90,42 +99,13 @@
   </style>
 </head>
 <body>
-  <header class="l-header">
-    <nav class="nav bd-grid">
-      <div class="nav__toggle" id="nav-toggle">
-        <i class='bx bx-menu'></i>
-      </div>
-      <div>
-        <a href="#" class="nav__logo">Saif Gazali</a>
-      </div>
-      <div class="nav__menu" id="nav-menu">
-        <div class="nav__close" id="nav-close">
-          <i class='bx bx-x' ></i>
-        </div>
-        <ul class="nav__list">
-          <li class="nav__item"><a href="#home" class="nav__link">Home</a></li>
-          <li class="nav__item"><a href="#about" class="nav__link">About</a></li>
-          <li class="nav__item"><a href="#skills" class="nav__link">Skills</a></li>
-          <li class="nav__item"><a href="#education" class="nav__link">Education</a></li>
-          <li class="nav__item"><a href="#projects" class="nav__link">Projects</a></li>
-          <li class="nav__item"><a href="#research" class="nav__link">Research Work</a></li>
-          <li class="nav__item"><a href="login.html" class="nav__link">Chatbot</a></li>
-          <li class="nav__item"><a href="#contact" class="nav__link">Contact</a></li>
-        </ul>
-      </div>
-    </nav>
-  </header>
-  <main class="l-main">
-    <section class="chatbot section">
-      <div id="chatbox">
-        <h2>SaifBot</h2>
-        <div id="messages"></div>
-        <input type="text" id="msgInput" placeholder="Tape ton message ici..." />
-        <button onclick="sendMsg()">Envoyer</button>
-      </div>
-    </section>
-  </main>
-  <script src="js/main.js"></script>
+  <div id="chatbox">
+    <h2>SaifBot</h2>
+    <div id="messages"></div>
+    <input type="text" id="msgInput" placeholder="Tape ton message ici..." />
+    <button onclick="sendMsg()">Envoyer</button>
+  </div>
+
   <script>
     const backendURL = "https://saifgazali-github-io.onrender.com/chat";
 
