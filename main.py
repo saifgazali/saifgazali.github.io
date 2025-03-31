@@ -122,8 +122,9 @@ async def chat(request: Request):
         formatted_context.append({
             "role": "system",
             "content": (
-                "Voici les dernières conversations de l'utilisateur (les plus récentes en premier). "
-                "Utilise-les comme contexte si la question actuelle est un suivi ou une modification."
+                "Voici les dernières conversations avec l'utilisateur (du plus ancien au plus récent). "
+                "Respecte toutes les modifications précédentes. Si l'utilisateur demande un changement (comme un nom), "
+                    "assure-toi que ce changement est toujours pris en compte dans les prochaines réponses, même s'il n'est pas répété."
             )
         })
 
