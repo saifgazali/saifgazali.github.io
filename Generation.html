@@ -112,57 +112,54 @@
   </div>
 
   <script>
-    const backendURL = "https://saifgazali-github-io.onrender.com/chat";
+  const backendURL = "https://saifgazali-github-io.onrender.com/chat";
 
-    async function sendMsg() {
-      const input = document.getElementById("msgInput");
-      document.getElementById("msgInput").addEventListener("keydown", function (event) {
-  if (event.key === "Enter") {
-    event.preventDefault(); // Évite le saut de ligne dans l’input
-    sendMsg();              // Appelle la fonction d’envoi
+  async function sendMsg() {
+    const input = document.getElementById("msgInput");
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    addMessage("user", msg);
+    input.value = "";
+
+    try {
+      const res = await fetch(backendURL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: msg,
+          user_id: localStorage.getItem("user_id") || "anonymous"
+        })
+      });
+
+      const data = await res.json();
+      addMessage("bot", data.reply || "Désolé, pas de réponse.");
+    } catch (err) {
+      addMessage("bot", "⚠️ Une erreur est survenue.");
+    }
   }
-});
 
-      const msg = input.value.trim();
-      if (!msg) return;
+  function addMessage(role, content) {
+    const div = document.createElement("div");
+    div.className = "msg " + role;
+    div.innerHTML = content
+      .replace(/^### (.*$)/gim, "<h3>$1</h3>")
+      .replace(/^#### (.*$)/gim, "<h4>$1</h4>")
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+      .replace(/^- (.*)$/gim, "<li>$1</li>")
+      .replace(/(<li>.*<\/li>)/gims, "<ul>$1</ul>");
 
-      addMessage("user", msg);
-      input.value = "";
+    document.getElementById("messages").appendChild(div);
+    document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
+  }
 
-      try {
-        const res = await fetch(backendURL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: msg,
-            user_id: localStorage.getItem("user_id") || "anonymous"
-          })
-        });
-
-        const data = await res.json();
-        addMessage("bot", data.reply || "Désolé, pas de réponse.");
-      } catch (err) {
-        addMessage("bot", "⚠️ Une erreur est survenue.");
-      }
+  // ✅ Attache l'écouteur ici, en dehors de sendMsg
+  document.getElementById("msgInput").addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      sendMsg();
     }
-
-    function addMessage(role, content) {
-      const div = document.createElement("div");
-      div.className = "msg " + role;
-      div.innerHTML = content
-        // Titres ### -> <h3>
-          .replace(/^### (.*$)/gim, "<h3>$1</h3>")
-          .replace(/^#### (.*$)/gim, "<h4>$1</h4>")
-          // Gras **text**
-          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-          // Listes - item
-          .replace(/^- (.*)$/gim, "<li>$1</li>")
-          // Entourer les <li> dans une <ul>
-          .replace(/(<li>.*<\/li>)/gims, "<ul>$1</ul>");
-
-      document.getElementById("messages").appendChild(div);
-      document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight;
-    }
-  </script>
+  });
+</script>
 </body>
 </html>
