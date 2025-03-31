@@ -18,8 +18,8 @@ users_db = {
         "password": "1234",
         "uuid": "user-001"
     },
-    "aiva": {
-        "password": "5678",
+    "jlapalme": {
+        "password": "jlapalme",
         "uuid": "user-002"
     },
     "scharest": {
