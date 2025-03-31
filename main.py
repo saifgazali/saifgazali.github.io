@@ -30,13 +30,29 @@ users_db = {
         "password": "ebrunelle",
         "uuid": "user-004"
     },
+    "maud": {
+        "password": "maud",
+        "uuid": "user-005"
+    },
+    "joss": {
+        "password": "joss",
+        "uuid": "user-006"
+    },
+    "ntrudel": {
+        "password": "ntrudel",
+        "uuid": "user-007"
+    },
+    "stheoret": {
+        "password": "stheoret",
+        "uuid": "user-008"
+    },
     "laurie": {
         "password": "laurie",
-        "uuid": "user-005"
+        "uuid": "user-009"
     },
     "audrey": {
         "password": "audrey",
-        "uuid": "user-006"
+        "uuid": "user-0010"
     }
     
 }
