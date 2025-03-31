@@ -22,6 +22,23 @@ users_db = {
         "password": "5678",
         "uuid": "user-002"
     }
+    "scharest": {
+        "password": "scharest",
+        "uuid": "user-003"
+    }
+    "ebrunelle": {
+        "password": "ebrunelle",
+        "uuid": "user-004"
+    }
+    "laurie": {
+        "password": "laurie",
+        "uuid": "user-005"
+    }
+    "audrey": {
+        "password": "audrey",
+        "uuid": "user-006"
+    }
+    
 }
 
 @app.post("/login")
