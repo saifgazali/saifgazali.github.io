@@ -60,7 +60,6 @@
       console.log("Response from backend:", data); // 👈 Debugging line
 
       if (data && data.reply) {
-        addMessage("Nom d'utilisateur",localStorage.getItem("user_id"))
         addMessage("bot", data.reply);
       } else {
         addMessage("bot", "No reply received 😕");
