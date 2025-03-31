@@ -8,6 +8,32 @@ from dotenv import load_dotenv
 
 load_dotenv()  # Load from .env file if present
 
+from fastapi import HTTPException
+
+# Dummy user database (for just 2 users)
+users_db = {
+    "saif": {
+        "password": "1234",
+        "uuid": "user-001"
+    },
+    "aiva": {
+        "password": "5678",
+        "uuid": "user-002"
+    }
+}
+
+@app.post("/login")
+async def login(request: Request):
+    data = await request.json()
+    username = data.get("username")
+    password = data.get("password")
+
+    if username not in users_db or users_db[username]["password"] != password:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    return {"uuid": users_db[username]["uuid"]}
+
+
 app = FastAPI()
 
 app.add_middleware(
